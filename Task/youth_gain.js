@@ -49,10 +49,11 @@ if ($.isNode()) {
           endArr.push(EndBody[item])
         }
     })
-if ($.isNode()) {
-      console.log(`============ 脚本执行-国际标准时间(UTC)：${new Date().toLocaleString()}  =============\n`)
-      console.log(`============ 脚本执行-北京时间(UTC+8)：${new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString()}  =============\n`)
-}
+
+    timeZone =  new Date().getTimezoneOffset() / 60;
+    timestamp = Date.now()+ (8+timeZone) * 60 * 60 * 1000;
+    bjTime = new Date(timestamp).toLocaleString('zh',{hour12:false,timeZoneName: 'long'});
+    console.log(`\n === 脚本执行 ${bjTime} ===\n`);
  !(async () => {
   if (!startArr[0]) {
     console.log($.name, '【提示】请把抓包的请求体填入Github 的 Secrets 中，请以&隔开')
@@ -89,7 +90,10 @@ function GainStart() {
         };
         $.post(url, async(error, response, data) => {
           let startres = JSON.parse(data);
-           if(startres.items.comtele_state ==0){
+          if(startres.success==false){
+            $.log(startres.message)
+            
+          } else if(startres.items.comtele_state ==0){
              $.log("任务开始，"+startres.items.banner_id+startres.message)
              await $.wait(10000);
              await GainEnd()
